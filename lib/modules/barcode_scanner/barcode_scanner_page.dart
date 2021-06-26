@@ -22,11 +22,11 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
     controller.getAvailableCameras();
     controller.statusNotifier.addListener(() {
       if (controller.status.hasBarcode) {
-        Navigator.pushReplacementNamed(
+        Navigator.pushNamed(
           context,
           "/insert_boleto",
           arguments: controller.status.barcode,
-        );
+        ).then((value) => Navigator.pop(context));
       }
     });
 

@@ -18,6 +18,7 @@ class InsertBoletoPage extends StatefulWidget {
 class _InsertBoletoPageState extends State<InsertBoletoPage> {
   final controller = InsertBoletoController();
 
+  final nameInputTextController = TextEditingController();
   final moneyInputTextController = MoneyMaskedTextController(
     leftSymbol: "R\$",
     decimalSeparator: ",",
@@ -30,7 +31,35 @@ class _InsertBoletoPageState extends State<InsertBoletoPage> {
   @override
   void initState() {
     if (widget.barcode != null) {
+      nameInputTextController.text = "IPTU";
+      // formato para IPTU, outros tipos de boleto têm padrão diferente
+      if (widget.barcode!.length == 48) {
+        moneyInputTextController.text = widget.barcode!.substring(5, 11) +
+            widget.barcode!.substring(12, 16);
+        dueDateInputTextController.text = widget.barcode!.substring(20, 22) +
+            "/" +
+            widget.barcode!.substring(22, 23) +
+            widget.barcode!.substring(24, 25) +
+            "/20" +
+            widget.barcode!.substring(25, 27);
+      } else {
+        // lendo pela câmera ele retira o último dígito de cada parte
+        moneyInputTextController.text = widget.barcode!.substring(5, 15);
+        dueDateInputTextController.text = widget.barcode!.substring(19, 21) +
+            "/" +
+            widget.barcode!.substring(21, 24) +
+            "/20" +
+            widget.barcode!.substring(24, 26);
+      }
+
       barcodeInputTextController.text = widget.barcode!;
+
+      controller.onChange(
+        barcode: barcodeInputTextController.text,
+        dueDate: dueDateInputTextController.text,
+        name: nameInputTextController.text,
+        value: moneyInputTextController.numberValue,
+      );
     }
     super.initState();
   }
@@ -72,6 +101,7 @@ class _InsertBoletoPageState extends State<InsertBoletoPage> {
                 child: Column(
                   children: [
                     InputTextWidget(
+                      controller: nameInputTextController,
                       label: "Nome do boleto",
                       validator: controller.validateName,
                       icon: Icons.description_outlined,
@@ -87,6 +117,7 @@ class _InsertBoletoPageState extends State<InsertBoletoPage> {
                       onChanged: (value) {
                         controller.onChange(dueDate: value);
                       },
+                      textInputType: TextInputType.number,
                     ),
                     InputTextWidget(
                       controller: moneyInputTextController,
@@ -100,6 +131,7 @@ class _InsertBoletoPageState extends State<InsertBoletoPage> {
                           value: moneyInputTextController.numberValue,
                         );
                       },
+                      textInputType: TextInputType.number,
                     ),
                     InputTextWidget(
                       controller: barcodeInputTextController,
@@ -109,6 +141,7 @@ class _InsertBoletoPageState extends State<InsertBoletoPage> {
                       onChanged: (value) {
                         controller.onChange(barcode: value);
                       },
+                      textInputType: TextInputType.number,
                     )
                   ],
                 ),

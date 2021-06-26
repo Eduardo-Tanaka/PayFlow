@@ -41,6 +41,10 @@ class BarcodeScannerController {
         barcode = item.value.displayValue;
       }
 
+      if (barcode.toString().length < 44) {
+        return;
+      }
+
       if (barcode != null && status.barcode.isEmpty) {
         status = BarcodeScannerStatus.barcode(barcode);
         cameraController!.dispose();

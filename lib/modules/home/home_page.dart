@@ -1,5 +1,10 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nlw2021/modules/barcode_scanner/barcode_scanner_controller.dart';
 import 'package:nlw2021/modules/extract/extract_page.dart';
 import 'package:nlw2021/shared/models/user_model.dart';
+import 'package:nlw2021/shared/widgets/input_text/input_text_widget.dart';
+import 'package:nlw2021/shared/widgets/label_button/label_button.dart';
+import 'package:nlw2021/shared/widgets/set_label_buttons/set_label_buttons.dart';
 
 import 'home_controller.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +25,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final homeController = HomeController();
+  final controller = BarcodeScannerController();
+  final codigoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +96,78 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             GestureDetector(
-              onTap: () async {
-                await Navigator.pushNamed(context, "/barcode_scanner");
-                setState(() {});
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => Container(
+                    child: Wrap(
+                      children: [
+                        ListTile(
+                          title: Text("Digitar código"),
+                          leading: Icon(Icons.border_color),
+                          onTap: () => {
+                            Navigator.pop(context),
+                            showDialog(
+                              context: context,
+                              builder: (context) => SimpleDialog(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text('Digite o código de barras'),
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 40,
+                                      bottom: 20,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                      ),
+                                      child: TextFormField(
+                                        autofocus: true,
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.all(0),
+                                          isDense: true,
+                                        ),
+                                        keyboardType: TextInputType.number,
+                                        controller: codigoController,
+                                      ),
+                                    ),
+                                  ),
+                                  SetLabelButtons(
+                                    primaryLabel: "Cancelar",
+                                    primaryPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    secondaryLabel: "Cadastrar",
+                                    secondaryPressed: () async {
+                                      Navigator.pop(context);
+                                      Navigator.pushNamed(
+                                        context,
+                                        "/insert_boleto",
+                                        arguments: codigoController.text,
+                                      ).then((value) => setState(() {}));
+                                    },
+                                    enableSecondaryColor: true,
+                                  ),
+                                ],
+                              ),
+                            )
+                          },
+                        ),
+                        ListTile(
+                            title: Text("Escanear código"),
+                            leading: Icon(Icons.camera_alt),
+                            onTap: () async {
+                              Navigator.pop(context);
+                              await Navigator.pushNamed(
+                                context,
+                                "/barcode_scanner",
+                              ).then((value) => setState(() {}));
+                            }),
+                      ],
+                    ),
+                  ),
+                );
               },
               child: Container(
                 width: 50,
